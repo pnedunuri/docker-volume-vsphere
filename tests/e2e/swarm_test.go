@@ -32,6 +32,7 @@ import (
 
 type SwarmTestSuite struct {
 	esxName     string
+	dataStores  []string
 	master      string
 	worker1     string
 	worker2     string
@@ -42,6 +43,7 @@ type SwarmTestSuite struct {
 
 func (s *SwarmTestSuite) SetUpSuite(c *C) {
 	s.esxName = inputparams.GetEsxIP()
+	s.dataStores = inputparams.GetDatastores()
 	s.master = inputparams.GetSwarmManager1()
 	s.worker1 = inputparams.GetSwarmWorker1()
 	s.worker2 = inputparams.GetSwarmWorker2()
@@ -58,7 +60,7 @@ func (s *SwarmTestSuite) SetUpSuite(c *C) {
 	out, err = dockercli.CreateVolume(s.master, s.volumeName)
 	c.Assert(err, IsNil, Commentf(out))
 
-	status := verification.VerifyDetachedStatus(s.volumeName, s.master, s.esxName)
+	status := verification.VerifyDetachedStatus(s.volumeName, s.dataStores[0], s.master, s.esxName)
 	c.Assert(status, Equals, true, Commentf("Volume %s is not detached", s.volumeName))
 }
 
@@ -137,7 +139,7 @@ func (s *SwarmTestSuite) TestDockerSwarm(c *C) {
 	out, err = dockercli.ListService(s.master, s.serviceName)
 	c.Assert(err, NotNil, Commentf("Expected error does not happen"))
 
-	status = verification.VerifyDetachedStatus(s.volumeName, s.master, s.esxName)
+	status = verification.VerifyDetachedStatus(s.volumeName, s.dataStores[0], s.master, s.esxName)
 	c.Assert(status, Equals, true, Commentf("Volume %s is still attached", s.volumeName))
 
 	log.Printf("END: swarm_test.TestDockerSwarm")
