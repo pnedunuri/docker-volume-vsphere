@@ -146,9 +146,9 @@ of binaries in ./build directory.
 
 In order to test locally, you'd need a test setup. Local test setup automation is planned but but not done yet, so currently the environment has to be set up manually.
 
-Test environment  typically consist of 1 ESX and 2  guest VMs running inside of the
-ESX. We also support 1 ESX and 1 guest VM. We require ESX 6.0 and later,
-and a Linux VM running  Docker 1.10+ enabled for  plain text TCP connection, i.e.
+Test environment  typically consist of 1 ESX and 3 guest VMs running inside of the
+ESX. We require ESX 6.0 and later,
+and a Linux VM running  Docker 1.13+ enabled for  plain text TCP connection, i.e.
 Docker Daemon running with "-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"
 options. Note that both tcp: and unix: need to be present
 Please check  "Configuring and running Docker"
@@ -166,8 +166,7 @@ Makefile targets. There targets rely on environment variables to point to the
 correct environment.
 
 Environment variables:
-- You **need** to set ESX and either VM_IP (in which case we'll use 1 VM) or
-both VM1 and VM2 environment variables
+- You **need** to set ESX and VM1, VM2 and VM3 environment variables
 
 - The build will use your `username` (the output of `whoami`) to decide on the `DOCKER_HUB_REPO` name to complete our move to use [managed plugin](https://github.com/vmware/docker-volume-vsphere/blob/master/plugin/Makefile#L30).
 If you want to user another DockerHub repository you need to set `DOCKER_HUB_REPO` as environment variable.
@@ -177,7 +176,7 @@ If you want to user another DockerHub repository you need to set `DOCKER_HUB_REP
   - `GOVC_URL` same as `ESX IP`
   - `GOVC_USERNAME` & `GOVC_PASSWORD`: user credentials logging in to `ESX IP`
 
-- You **need** to set following environment variables to run swarm cluster related tests.
+- You **need** to set following environment variables to run swarm cluster related tests. You **need** to configure swarm cluster inorder to run swarm related testcase otherwise there will be a test failure.
   - `MANAGER1` - swarm cluster manager node IP
   - `WORKER1` & `WORKER2` - swarm cluster worker node IP
 
@@ -196,6 +195,7 @@ or
 export ESX=10.20.105.54
 export VM1=10.20.105.121
 export VM2=10.20.104.210
+export VM2=10.20.104.241
 export DOCKER_HUB_REPO=cnastorage
 export GOVC_INSECURE=1
 export GOVC_URL=10.20.105.54
@@ -231,7 +231,7 @@ Standard invocation on VM: (as root)
 ```
 
 To remove the code from the testbed, use the same steps as above (i.e define
-ESX, VM1 and VM2) and use the following make targets:
+ESX, VM1, VM2 and VM3) and use the following make targets:
 
 ```
 # remove stuff from the build
