@@ -164,8 +164,8 @@ def RunCommand(cmd):
 # for now we care about size and (maybe) policy
 def createVMDK(vmdk_path, vm_name, vol_name,
                opts={}, vm_uuid=None, tenant_uuid=None, datastore_url=None):
-    logging.info("*** createVMDK: %s opts = %s vm_name=%s vm_uuid=%s tenant_uuid=%s datastore_url=%s",
-                  vmdk_path, opts, vm_name, vm_uuid, tenant_uuid, datastore_url)
+    logging.info("*** createVMDK: %s opts=%s vm_name=%s vm_uuid=%s tenant_uuid=%s datastore_url=%s",
+                 vmdk_path, opts, vm_name, vm_uuid, tenant_uuid, datastore_url)
 
     if os.path.isfile(vmdk_path):
         # We are mostly here due to race or Plugin VMCI retry #1076
@@ -244,7 +244,8 @@ def createVMDK(vmdk_path, vm_name, vol_name,
 
 
 def cloneVMDK(vm_name, vmdk_path, opts={}, vm_uuid=None, datastore_url=None):
-    logging.info("*** cloneVMDK: %s opts = %s vm_uuid=%s datastore_url=%s", vmdk_path, opts, vm_uuid, datastore_url)
+    logging.info("*** cloneVMDK: %s opts = %s vm_uuid=%s datastore_url=%s",
+                 vmdk_path, opts, vm_uuid, datastore_url)
 
     # Get source volume path for cloning
     error_info, tenant_uuid, tenant_name = auth.get_tenant(vm_uuid)
@@ -951,6 +952,9 @@ def executeRequest(vm_uuid, vm_name, config_path, cmd, full_vol_name, opts):
 
         # For attach/detach reconfigure tasks, hold a per vm lock.
         elif cmd == "attach":
+            # TBD: get VM MOREF here and pass it down. Check that MO REF name / etc. marches with what we think baed on VSI
+            # on mismatch bail out with loud cry as a rename should impact all places. 
+            # TBD: try to get it first based on VC.UUID and if it fails fall back on BIOS.UUID
             with lockManager.get_lock(vm_uuid):
                 response = attachVMDK(vmdk_path, vm_uuid)
         elif cmd == "detach":
@@ -1551,7 +1555,7 @@ def execRequestThread(client_socket, cartel, request):
             # If req from client does not include version number, set the version to
             # SERVER_PROTOCOL_VERSION by default to make backward compatible
             client_protocol_version = int(req["version"]) if "version" in req else SERVER_PROTOCOL_VERSION
-            logging.debug("execRequestThread: version=%d", client_protocol_version)
+            logging.debug("execRequestThread: client protocol version=%d", client_protocol_version)
             if client_protocol_version != SERVER_PROTOCOL_VERSION:
                 if client_protocol_version < SERVER_PROTOCOL_VERSION:
                     reply_string = err("vSphere Docker Volume Service client version ({}) is older than server version ({}), "
@@ -1560,7 +1564,7 @@ def execRequestThread(client_socket, cartel, request):
                     reply_string = err("vSphere Docker Volume Service client version ({}) is newer than server version ({}), "
                                     "please update the server.".format(client_protocol_version, SERVER_PROTOCOL_VERSION))
                 send_vmci_reply(client_socket, reply_string)
-                logging.info("executeRequest '%s' failed: %s", req["cmd"], reply_string)
+                logging.warning("executeRequest '%s' failed: %s", req["cmd"], reply_string)
                 return
 
             opts = req["details"]["Opts"] if "Opts" in req["details"] else {}
