@@ -176,7 +176,7 @@ If you want to user another DockerHub repository you need to set `DOCKER_HUB_REP
   - `GOVC_URL` same as `ESX IP`
   - `GOVC_USERNAME` & `GOVC_PASSWORD`: user credentials logging in to `ESX IP`
 
-- You **need** to set following environment variables to run swarm cluster related tests. You **need** to configure swarm cluster inorder to run swarm related testcase otherwise there will be a test failure.
+- You **need** to set following environment variables to run swarm cluster related tests. You **need** to configure swarm cluster in order to run swarm related testcase otherwise there will be a test failure.
   - `MANAGER1` - swarm cluster manager node IP
   - `WORKER1` & `WORKER2` - swarm cluster worker node IP
 
@@ -195,7 +195,7 @@ or
 export ESX=10.20.105.54
 export VM1=10.20.105.121
 export VM2=10.20.104.210
-export VM2=10.20.104.241
+export VM3=10.20.104.241
 export DOCKER_HUB_REPO=cnastorage
 export GOVC_INSECURE=1
 export GOVC_URL=10.20.105.54
